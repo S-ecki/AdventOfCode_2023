@@ -4,8 +4,9 @@ import 'dart:io';
 /// Small Program to be used to generate files and boilerplate for a given day.\
 /// Call with `dart run day_generator.dart <day>`
 void main(List<String?> args) async {
-  const year = '2022';
-  const session = '<your session cookie here>';
+  const year = '2023';
+  const session =
+      '53616c7465645f5f28e4263f5deab8edb6549781f9f7f512ff6c286535c0ca6936e6a059ea6aa0c92fe64e3b455835b544f85f7c8d3bc077f45da9fd845c2557';
 
   if (args.length > 1) {
     print('Please call with: <dayNumber>');

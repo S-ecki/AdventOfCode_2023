@@ -1,39 +1,63 @@
 import '../utils/index.dart';
 
-/// Every day should extend [GenericDay] to have access to the corresponding
-/// input and a common interface.
-///
-/// Naming convention is set to pad any single-digit day with `0` to have proper
-/// ordering of files and correct mapping between input for days and the day
-/// files.
 class Day01 extends GenericDay {
-  // call the superclass with an integer == today´s day
   Day01() : super(1);
 
-  /// The [InputUtil] can be accessed through the superclass variable `input`. \
-  /// There are several methods in that class that parse the input in different
-  /// ways, an example is given below
-  ///
-  /// The return type of this is `dynamic` for [GenericDay], so you can decide
-  /// on a day-to-day basis what this function should return.
   @override
-  List<int> parseInput() {
-    final lines = input.getPerLine();
-    // exemplary usage of ParseUtil class
-    return ParseUtil.stringListToIntList(lines);
+  List<String> parseInput() {
+    return input.getPerLine();
   }
 
-  /// The `solvePartX` methods always return a int, the puzzle solution. This
-  /// solution will be printed in main.
   @override
   int solvePart1() {
-    // TODO implement
-    return 0;
+    return parseInput()
+        .removeChars()
+        .map(_extractBorderDigits)
+        .map(int.parse)
+        .sum;
   }
 
   @override
   int solvePart2() {
-    // TODO implement
-    return 0;
+    return parseInput()
+        .map(_stringToDigit)
+        .removeChars()
+        .map(_extractBorderDigits)
+        .map(int.parse)
+        .sum;
   }
+
+  String _extractBorderDigits(String digitString) {
+    final length = digitString.length;
+    return switch (length) {
+      0 => throw Exception('Empty line'),
+      1 => digitString[0] * 2,
+      _ => digitString[0] + digitString[length - 1],
+    };
+  }
+
+  /// Unholy solution to replace the words with digits.
+  ///
+  /// Replacing the words with the digit directly would result in other words
+  /// not being able to be replaced due to overlaping characters.
+  /// E.g. 'eighthree' should be '83' but would be '8hree' if we would not apply
+  /// the workaround below.
+  String _stringToDigit(String named) {
+    return named
+        .replaceAll('one', 'o1e')
+        .replaceAll('two', 't2o')
+        .replaceAll('three', 't3e')
+        .replaceAll('four', 'f4r')
+        .replaceAll('five', 'f5e')
+        .replaceAll('six', 's6x')
+        .replaceAll('seven', 's7n')
+        .replaceAll('eight', 'e8t')
+        .replaceAll('nine', 'n9e')
+        .replaceAll('zero', 'z0e');
+  }
+}
+
+extension on Iterable<String> {
+  /// Removes all non-digit characters from the strings in this list.
+  Iterable<String> removeChars() => map((s) => s.replaceAll(RegExp(r'\D'), ''));
 }
