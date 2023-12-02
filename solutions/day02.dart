@@ -1,70 +1,68 @@
 import '../utils/index.dart';
 
-typedef Game = ({int id, List<int?> red, List<int?> green, List<int?> blue});
+typedef GameLine = ({
+  int id,
+  List<int?> red,
+  List<int?> green,
+  List<int?> blue
+});
 
 class Day02 extends GenericDay {
   Day02() : super(2);
 
   @override
-  Iterable<Game> parseInput() {
+  Iterable<GameLine> parseInput() {
     final lines = input.getPerLine();
     return lines.mapIndexed((idx, l) {
-      final colonSplit = l.split(':');
-      final cubePart = colonSplit[1];
-      final sets = cubePart.split(';');
-      final colors = sets.map((s) {
-        final redIndex = s.indexOf('red');
-
-        final redMaybe = redIndex == -1
-            ? null
-            : int.tryParse(
-                s.split('red')[0].split(' ').whereNot((e) => e.isEmpty).last,
-              );
-        final greenIndex = s.indexOf('green');
-        final greenMaybe = greenIndex == -1
-            ? null
-            : int.tryParse(
-                s.split('green')[0].split(' ').whereNot((e) => e.isEmpty).last,
-              );
-        final blueIndex = s.indexOf('blue');
-        final blueMaybe = blueIndex == -1
-            ? null
-            : int.tryParse(
-                s.split('blue')[0].split(' ').whereNot((e) => e.isEmpty).last,
-              );
-        return (redMaybe, greenMaybe, blueMaybe);
-      });
+      final sets = l.split(':')[1].split(';');
+      final colorsPerSet = sets.map(
+        (s) => (
+          red: _numFromSet(s, 'red'),
+          green: _numFromSet(s, 'green'),
+          blue: _numFromSet(s, 'blue')
+        ),
+      );
       return (
         id: idx + 1,
-        red: colors.map((e) => e.$1).toList(),
-        green: colors.map((e) => e.$2).toList(),
-        blue: colors.map((e) => e.$3).toList()
+        // it' a bummer that we cant destructure the record in the param list
+        red: colorsPerSet.map((e) => e.red).toList(),
+        green: colorsPerSet.map((e) => e.green).toList(),
+        blue: colorsPerSet.map((e) => e.blue).toList()
       );
     });
   }
 
   @override
   int solvePart1() {
-    final validGames = parseInput().where(
-      (game) =>
-          game.red.whereNotNull().every((r) => r <= 12) &&
-          game.green.whereNotNull().every((g) => g <= 13) &&
-          game.blue.whereNotNull().every((b) => b <= 14),
-    );
-    return validGames.fold<int>(0, (sum, game) => sum + game.id);
+    return parseInput().where(_colorsBelowThreshold).map((game) => game.id).sum;
   }
 
   @override
   int solvePart2() {
-    final minSets = parseInput().map((game) {
-      return (
-        max(game.red.whereNotNull())!,
-        max(game.green.whereNotNull())!,
-        max(game.blue.whereNotNull())!
-      );
-    });
-    final pows = minSets.map((e) => e.$1 * e.$2 * e.$3);
-
-    return pows.sum;
+    return parseInput()
+        .map(
+          (game) => (
+            red: game.red.whereNotNull().max,
+            green: game.green.whereNotNull().max,
+            blue: game.blue.whereNotNull().max,
+          ),
+        )
+        .map((colors) => colors.red * colors.green * colors.blue)
+        .sum;
   }
+
+  /// Returns 'null' if the color is not present in the set
+  int? _numFromSet(String set, String color) {
+    bool stringNotEmpty(String s) => s.isNotEmpty;
+    if (!set.contains(color)) return null;
+
+    return int.tryParse(
+      set.split(color)[0].split(' ').where(stringNotEmpty).last,
+    );
+  }
+
+  bool _colorsBelowThreshold(GameLine game) =>
+      game.red.whereNotNull().every((r) => r <= 12) &&
+      game.green.whereNotNull().every((g) => g <= 13) &&
+      game.blue.whereNotNull().every((b) => b <= 14);
 }
