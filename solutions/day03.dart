@@ -88,26 +88,6 @@ class Day03 extends GenericDay {
     return relevantDigitPositions;
   }
 
-  Set<Position> _removeNeighbourDigits(
-    Set<Position> relevantDigitPositions,
-    Field<Char> field,
-  ) {
-    final uniquieHorizontalNeighbours = <Position>{};
-    final relevantCopy = {...relevantDigitPositions};
-
-    for (final (x, y) in relevantCopy) {
-      if (uniquieHorizontalNeighbours.contains((x, y))) {
-        continue;
-      }
-      final relevantNeighbours =
-          relevantCopy.intersection(field.horizontalAdjacent(x, y).toSet());
-
-      uniquieHorizontalNeighbours.addAll(relevantNeighbours);
-    }
-
-    return relevantCopy..removeAll(uniquieHorizontalNeighbours);
-  }
-
   @override
   int solvePart2() {
     final field = parseInput();
@@ -127,7 +107,7 @@ class Day03 extends GenericDay {
           .toSet();
 
       final digitNeighbours =
-          _removeIrrelevant(digitNeighboursMaybe, field).toList();
+          _removeNeighbourDigits(digitNeighboursMaybe, field).toList();
 
       if (digitNeighbours.length == 2) {
         gears[(x, y)] = (digitNeighbours[0], digitNeighbours[1]);
@@ -142,7 +122,7 @@ class Day03 extends GenericDay {
     }).sum;
   }
 
-  Set<Position> _removeIrrelevant(
+  Set<Position> _removeNeighbourDigits(
     Set<Position> relevantDigitPositions,
     Field<Char> field,
   ) {

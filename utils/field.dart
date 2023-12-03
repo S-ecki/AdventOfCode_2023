@@ -13,13 +13,11 @@ class Field<T> {
         field = List<List<T>>.generate(
           field.length,
           (y) => List<T>.generate(field[0].length, (x) => field[y][x]),
-        ),
-        height = field.length,
-        width = field[0].length;
+        );
 
   final List<List<T>> field;
-  int height;
-  int width;
+  int get height => field.length;
+  int get width => field[0].length;
 
   /// Returns the value at the given position.
   T getValueAtPosition(Position position) {
