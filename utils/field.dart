@@ -118,6 +118,19 @@ class Field<T> {
       );
   }
 
+  /// Returns all horizontal neighbours of a position, aka left and right.
+  Iterable<Position> horizontalAdjacent(int x, int y) {
+    return <Position>{
+      (x - 1, y),
+      (x + 1, y),
+    }..removeWhere(
+        (pos) {
+          final (x, y) = pos;
+          return x < 0 || y < 0 || x >= width || y >= height;
+        },
+      );
+  }
+
   /// Returns a deep copy by value of this [Field].
   Field<T> copy() {
     final newField = List<List<T>>.generate(
@@ -155,8 +168,3 @@ extension IntegerField on Field<int> {
     return Field(lines);
   }
 }
-
-// extension CoordinateLocator on Position {
-//   int get x => item1;
-//   int get y => item2;
-// }

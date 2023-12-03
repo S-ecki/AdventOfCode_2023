@@ -37,13 +37,17 @@ void main(List<String?> args) async {
   // Create lib file
   final dayFileName = 'day$dayNumber.dart';
   unawaited(
-    File('solutions/$dayFileName').writeAsString(_dayTemplate(dayNumber)),
+    File('solutions/$dayFileName')
+        .create(recursive: true)
+        .then((file) => file.writeAsString(_dayTemplate(dayNumber!))),
   );
 
   // Create test file
   final testFileName = 'day${dayNumber}_test.dart';
   unawaited(
-    File('test/$testFileName').writeAsString(_testTemplate(dayNumber)),
+    File('test/$testFileName')
+        .create(recursive: true)
+        .then((file) => file.writeAsString(_testTemplate(dayNumber!))),
   );
 
   final exportFile = File('solutions/index.dart');
@@ -122,11 +126,14 @@ import '../solutions/day$day.dart';
 
 // *******************************************************************
 // Fill out the variables below according to the puzzle description!
-// The test code should usually not need to be changed.
+// The test code should usually not need to be changed, apart from uncommenting
+// the puzzle tests for regression testing.
 // *******************************************************************
 
 /// Paste in the small example that is given for the FIRST PART of the puzzle.
 /// It will be evaluated again the `_exampleSolutionPart1` below.
+/// Make sure to respect the multiline string format to avoid additional 
+/// newlines at the end.
 const _exampleInput1 = \'''
 \''';
 
@@ -147,12 +154,14 @@ const _exampleSolutionPart2 = 0;
 /// The actual solution for the FIRST PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
-const _puzzleSolutionPart1 = 0;
+/// As long as the variable is `null`, the tests will be skipped.
+const _puzzleSolutionPart1 = null;
 
 /// The actual solution for the SECOND PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
-const _puzzleSolutionPart2 = 0;
+/// As long as the variable is `null`, the tests will be skipped.
+const _puzzleSolutionPart2 = null;
 
 void main() {
   group(
@@ -172,8 +181,20 @@ void main() {
     'Day $day - Puzzle Input',
     () {
       final day = Day$day();
-      test('Part 1', () => expect(day.solvePart1(), _puzzleSolutionPart1));
-      test('Part 2', () => expect(day.solvePart2(), _puzzleSolutionPart2));
+      test(
+        'Part 1',
+        skip: _puzzleSolutionPart1 == null
+            ? 'Skipped because _puzzleSolutionPart1 is null'
+            : false,
+        () => expect(day.solvePart1(), _puzzleSolutionPart1),
+      );
+      test(
+        'Part 2',
+        skip: _puzzleSolutionPart2 == null
+            ? 'Skipped because _puzzleSolutionPart2 is null'
+            : false,
+        () => expect(day.solvePart1(), _puzzleSolutionPart2),
+      );
     },
   );
 }
