@@ -129,6 +129,36 @@ class Field<T> {
       );
   }
 
+  // Transforms each element in the field using a given function and returns a
+  // new `Field` with the transformed elements.
+  Field<R> map<R>(R Function(T) transform) {
+    final newField = List.generate(
+      height,
+      (y) => List.generate(width, (x) => transform(field[y][x])),
+    );
+    return Field<R>(newField);
+  }
+
+  // Checks if any element in the field satisfies a given condition.
+  bool any(bool Function(T) test) {
+    for (final row in field) {
+      for (final value in row) {
+        if (test(value)) return true;
+      }
+    }
+    return false;
+  }
+
+  // Checks if every element in the field satisfies a given condition.
+  bool every(bool Function(T) test) {
+    for (final row in field) {
+      for (final value in row) {
+        if (!test(value)) return false;
+      }
+    }
+    return true;
+  }
+
   /// Returns a deep copy by value of this [Field].
   Field<T> copy() {
     final newField = List<List<T>>.generate(
