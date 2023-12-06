@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:test/test.dart';
 
 import '../solutions/day05.dart';
@@ -64,7 +66,7 @@ const _exampleSolutionPart2 = 46;
 /// This can only be filled out after you have solved the puzzle and is used
 /// for regression testing when refactoring.
 /// As long as the variable is `null`, the tests will be skipped.
-const _puzzleSolutionPart1 = 535088217;
+const _puzzleSolutionPart1 = 642320287;
 
 /// The actual solution for the SECOND PART of the puzzle, based on your input.
 /// This can only be filled out after you have solved the puzzle and is used

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'tool/session_token.dart';
+
 /// Small Program to be used to generate files and boilerplate for a given day.\
 /// Call with `dart run day_generator.dart <day>`
 void main(List<String?> args) async {
   const year = '2023';
-  const session =
-      // ignore: lines_longer_than_80_chars
-      '53616c7465645f5f28e4263f5deab8edb6549781f9f7f512ff6c286535c0ca6936e6a059ea6aa0c92fe64e3b455835b544f85f7c8d3bc077f45da9fd845c2557';
+  final session = getSessionToken();
 
   if (args.length > 1) {
     print('Please call with: <dayNumber>');
@@ -80,6 +80,14 @@ void main(List<String?> args) async {
     );
     request.cookies.add(Cookie('session', session));
     final response = await request.close();
+    if (response.statusCode != 200) {
+      print('''
+Received status code ${response.statusCode} from server.
+
+You might need to refresh your session token.
+You can do so by deleting the file at $sessionTokenPath and restarting the generator.''');
+      return;
+    }
     final dataPath = 'input/aoc$dayNumber.txt';
     // unawaited(File(dataPath).create());
     await response.pipe(File(dataPath).openWrite());
@@ -120,6 +128,8 @@ class Day$dayNumber extends GenericDay {
 
 String _testTemplate(String day) {
   return '''
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:test/test.dart';
 
 import '../solutions/day$day.dart';
@@ -141,7 +151,7 @@ const _exampleInput1 = \'''
 /// It will be evaluated against the `_exampleSolutionPart2` below.
 ///
 /// In case the second part uses the same example, uncomment below line instead:
-// const _exampleInput2 = _exampleInput;
+// const _exampleInput2 = _exampleInput1;
 const _exampleInput2 = \'''
 \''';
 
@@ -193,7 +203,7 @@ void main() {
         skip: _puzzleSolutionPart2 == null
             ? 'Skipped because _puzzleSolutionPart2 is null'
             : false,
-        () => expect(day.solvePart1(), _puzzleSolutionPart2),
+        () => expect(day.solvePart2(), _puzzleSolutionPart2),
       );
     },
   );
