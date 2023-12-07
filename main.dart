@@ -11,10 +11,11 @@ final days = <GenericDay>[
   Day04(),
   // Day05(), commented out as solution takes 10 minutes.....
   Day06(),
+  Day07(),
 ];
 
 void main(List<String?> args) {
-  var onlyShowLast = false;
+  var onlyShowLast = true;
 
   if (args.length == 1 && args[0].isHelperArgument()) {
     printHelper();
