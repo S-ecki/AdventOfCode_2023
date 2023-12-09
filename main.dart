@@ -12,6 +12,7 @@ final days = <GenericDay>[
   // Day05(), commented out as solution takes 10 minutes.....
   Day06(),
   Day07(),
+  Day09(),
 ];
 
 void main(List<String?> args) {
