@@ -1,5 +1,7 @@
 import 'package:quiver/iterables.dart';
 
+import '../solutions/index.dart';
+
 typedef Position = (int x, int y);
 typedef VoidFieldCallback = void Function(int, int);
 
@@ -14,6 +16,14 @@ class Field<T> {
           field.length,
           (y) => List<T>.generate(field[0].length, (x) => field[y][x]),
         );
+
+  /// Convenience method to create a Field from a single String, where the
+  /// String is a "block" of characters.
+  static Field<Char> fromString(String string) {
+    final lines =
+        string.split('\n').map((line) => line.trim().split('')).toList();
+    return Field(lines);
+  }
 
   final List<List<T>> field;
   int get height => field.length;
@@ -68,6 +78,17 @@ class Field<T> {
   int count(T searched) => field
       .expand((element) => element)
       .fold<int>(0, (acc, elem) => elem == searched ? acc + 1 : acc);
+
+  Set<Position> where(bool Function(T) test) {
+    final result = <Position>{};
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        final value = getValueAt(x, y);
+        if (test(value)) result.add((x, y));
+      }
+    }
+    return result;
+  }
 
   /// Executes the given callback for all given positions.
   void forPositions(
@@ -129,12 +150,23 @@ class Field<T> {
       );
   }
 
-  // Transforms each element in the field using a given function and returns a
-  // new `Field` with the transformed elements.
+  /// Transforms each element in the field using a given function and returns a
+  /// new `Field` with the transformed elements.
   Field<R> map<R>(R Function(T) transform) {
     final newField = List.generate(
       height,
       (y) => List.generate(width, (x) => transform(field[y][x])),
+    );
+    return Field<R>(newField);
+  }
+
+  /// Transforms each element in the field using a given function and returns a
+  /// new `Field` with the transformed elements.
+  /// Also passes the position of the element to the transform function.
+  Field<R> mapPositioned<R>(R Function(Position, T) transform) {
+    final newField = List.generate(
+      height,
+      (y) => List.generate(width, (x) => transform((x, y), field[y][x])),
     );
     return Field<R>(newField);
   }
