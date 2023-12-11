@@ -12,7 +12,7 @@ class Field<T> {
         assert(field[0].isNotEmpty, 'First position must not be empty'),
         // creates a deep copy by value from given field to prevent unwarranted
         // overrides
-        field = List<List<T>>.generate(
+        _field = List<List<T>>.generate(
           field.length,
           (y) => List<T>.generate(field[0].length, (x) => field[y][x]),
         );
@@ -25,14 +25,14 @@ class Field<T> {
     return Field(lines);
   }
 
-  final List<List<T>> field;
-  int get height => field.length;
-  int get width => field[0].length;
+  final List<List<T>> _field;
+  int get height => _field.length;
+  int get width => _field[0].length;
 
   /// Returns the value at the given position.
   T getValueAtPosition(Position position) {
     final (x, y) = position;
-    return field[y][x];
+    return _field[y][x];
   }
 
   /// Returns the value at the given coordinates.
@@ -41,7 +41,7 @@ class Field<T> {
   /// Sets the value at the given Position.
   void setValueAtPosition(Position position, T value) {
     final (x, y) = position;
-    field[y][x] = value;
+    _field[y][x] = value;
   }
 
   /// Sets the value at the given coordinates.
@@ -54,16 +54,22 @@ class Field<T> {
   }
 
   /// Returns the whole row with given row index.
-  Iterable<T> getRow(int row) => field[row];
+  List<T> getRow(int row) => _field[row];
+
+  /// Returns the whole field as a list of rows.
+  List<List<T>> asRows() => _field;
 
   /// Returns the whole column with given column index.
-  Iterable<T> getColumn(int column) => field.map((row) => row[column]);
+  List<T> getColumn(int column) => _field.map((row) => row[column]).toList();
+
+  /// Returns the whole field as a list of columns.
+  List<List<T>> asColumns() => List.generate(width, getColumn);
 
   /// Returns the minimum value in this field.
-  T get minValue => min<T>(field.expand((element) => element))!;
+  T get minValue => min<T>(_field.expand((element) => element))!;
 
   /// Returns the maximum value in this field.
-  T get maxValue => max<T>(field.expand((element) => element))!;
+  T get maxValue => max<T>(_field.expand((element) => element))!;
 
   /// Executes the given callback for every position on this field.
   void forEach(VoidFieldCallback callback) {
@@ -75,11 +81,11 @@ class Field<T> {
   }
 
   /// Returns the number of occurances of given object in this field.
-  int count(T searched) => field
+  int count(T searched) => _field
       .expand((element) => element)
       .fold<int>(0, (acc, elem) => elem == searched ? acc + 1 : acc);
 
-  Set<Position> where(bool Function(T) test) {
+  List<Position> where(bool Function(T) test) {
     final result = <Position>{};
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
@@ -87,7 +93,7 @@ class Field<T> {
         if (test(value)) result.add((x, y));
       }
     }
-    return result;
+    return result.toList();
   }
 
   /// Executes the given callback for all given positions.
@@ -155,7 +161,7 @@ class Field<T> {
   Field<R> map<R>(R Function(T) transform) {
     final newField = List.generate(
       height,
-      (y) => List.generate(width, (x) => transform(field[y][x])),
+      (y) => List.generate(width, (x) => transform(_field[y][x])),
     );
     return Field<R>(newField);
   }
@@ -166,14 +172,14 @@ class Field<T> {
   Field<R> mapPositioned<R>(R Function(Position, T) transform) {
     final newField = List.generate(
       height,
-      (y) => List.generate(width, (x) => transform((x, y), field[y][x])),
+      (y) => List.generate(width, (x) => transform((x, y), _field[y][x])),
     );
     return Field<R>(newField);
   }
 
   // Checks if any element in the field satisfies a given condition.
   bool any(bool Function(T) test) {
-    for (final row in field) {
+    for (final row in _field) {
       for (final value in row) {
         if (test(value)) return true;
       }
@@ -183,7 +189,7 @@ class Field<T> {
 
   // Checks if every element in the field satisfies a given condition.
   bool every(bool Function(T) test) {
-    for (final row in field) {
+    for (final row in _field) {
       for (final value in row) {
         if (!test(value)) return false;
       }
@@ -195,7 +201,7 @@ class Field<T> {
   Field<T> copy() {
     final newField = List<List<T>>.generate(
       height,
-      (y) => List<T>.generate(width, (x) => field[y][x]),
+      (y) => List<T>.generate(width, (x) => _field[y][x]),
     );
     return Field<T>(newField);
   }
@@ -203,7 +209,7 @@ class Field<T> {
   @override
   String toString() {
     final result = StringBuffer();
-    for (final row in field) {
+    for (final row in _field) {
       for (final elem in row) {
         result.write(elem.toString());
       }
